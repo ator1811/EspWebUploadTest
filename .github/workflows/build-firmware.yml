@@ -27,7 +27,7 @@ jobs:
         run: |
           mkdir -p releases
           cp firmware/build/bootloader/bootloader.bin releases/
-          cp firmware/build/partition_table/partitions.bin releases/
+          cp firmware/build/partition_table/partition-table.bin releases/
           cp firmware/build/QuantumDice.bin releases/
           
       - name: Create manifest
