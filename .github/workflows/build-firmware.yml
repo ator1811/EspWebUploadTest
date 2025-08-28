@@ -1,0 +1,60 @@
+name: Build Firmware
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup ESP-IDF
+        uses: espressif/esp-idf-ci-action@v1
+        with:
+          esp_idf_version: v5.1
+          target: esp32s3
+          
+      - name: Build firmware
+        run: |
+          cd firmware
+          idf.py build
+          
+      - name: Prepare release files
+        run: |
+          mkdir -p releases
+          cp firmware/build/bootloader/bootloader.bin releases/
+          cp firmware/build/partition_table/partition-table.bin releases/
+          cp firmware/build/your_app_name.bin releases/
+          
+      - name: Create manifest
+        run: |
+          cat > releases/manifest.json << EOF
+          {
+            "name": "Your Firmware",
+            "version": "${{ github.ref_name }}",
+            "builds": [{
+              "chipFamily": "ESP32-S3",
+              "parts": [
+                {"path": "bootloader.bin", "offset": 0},
+                {"path": "partition-table.bin", "offset": 32768},
+                {"path": "your_app_name.bin", "offset": 65536}
+              ]
+            }]
+          }
+          EOF
+          
+      - name: Upload release
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-${{ github.ref_name }}
+          path: releases/
+          
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: releases/*
