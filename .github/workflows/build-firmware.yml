@@ -26,9 +26,9 @@ jobs:
       - name: Prepare release files
         run: |
           mkdir -p releases
-          cp firmware/build/bootloader/QuantumDice.ino.bootloader.bin releases/
-          cp firmware/build/partition_table/QuantumDice.ino.partitions.bin releases/
-          cp firmware/build/QuantumDice.ino.bin releases/
+          cp firmware/build/bootloader/bootloader.bin releases/
+          cp firmware/build/partition_table/partitions.bin releases/
+          cp firmware/build/QuantumDice.bin releases/
           
       - name: Create manifest
         run: |
@@ -41,7 +41,7 @@ jobs:
               "parts": [
                 {"path": "bootloader.bin", "offset": 0},
                 {"path": "partition-table.bin", "offset": 32768},
-                {"path": "your_app_name.bin", "offset": 65536}
+                {"path": "QuantumDice.bin", "offset": 65536}
               ]
             }]
           }
